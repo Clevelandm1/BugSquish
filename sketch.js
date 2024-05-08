@@ -5,10 +5,29 @@ let bugs = [];
 let count = 10;
 let font;
 let textS = 0;
-let mode = 0;
+let mode = -2;
 let countDown = 30;
 let score = 0;
 let level = 10;
+
+let song;
+song = new Tone.Player("assets/sounds/MYCREATEDSONG.mp3");
+song.toDestination();
+song.loop = true;
+let endSong;
+endSong = new Tone.Player("assets/sounds/yellowTree.mp3");
+endSong.toDestination();
+endSong.loop = true;
+let miss;
+miss = new Tone.Player("assets/sounds/miss.mp3");
+miss.toDestination();
+let splat;
+splat = new Tone.Player("assets/sounds/splat.mp3");
+splat.toDestination();
+let melodyLoop;
+melodyLoop = new Tone.Player("assets/sounds/melodyLoop.mp3");
+melodyLoop.toDestination();
+melodyLoop.loop = true;
 
 
 function preload(){
@@ -40,7 +59,11 @@ function draw(){
    wood.resize(width*2, 0);
    image(wood, 0, 0);
 
-   if(mode == 0){
+   if(mode == -2){
+      startProgram();
+   }
+
+   if(mode == 0 || mode == -1){
       startMenu();
    }
 
@@ -129,17 +152,31 @@ class bug{
 
    bugClicked(){
       if(((mouseX >= this.pos.x - 50)&&(mouseX <= this.pos.x + 50)) && ((mouseY >= this.pos.y - 32)&&(mouseY <= this.pos.y + 32))){
+         splat.start();
          this.alive = false;
          score++;
          level+=1;
+      }
+
+      else{
+         miss.start();
       }
    }
 }
 
 function mouseClicked(){
-   if(mode == 0){
+   if(mode == -2){
+      mode++;
+      melodyLoop.start();
+   }
+
+   if(mode == 0 || mode == -1){
       if((mouseX > width/2 - (700+sin(textS)*120)/2) && (mouseX < width/2 + (700+sin(textS)*120)/2) && (mouseY > height/2 - (100+sin(textS)*10)/2) && (mouseY < height/2 + (100+sin(textS)*10)/2)){
          mode++;
+      if(mode == 1){
+         melodyLoop.stop();
+         song.start();
+      }
       }
    }
 
@@ -155,10 +192,19 @@ function mouseClicked(){
          countDown = 30;
          level = 10;
          mode = 0;
+         endSong.stop();
+         melodyLoop.start();
       }
    }
 }
 
+
+function startProgram(){
+   push();
+   textSize(26)
+   text('Click the Mouse to Begin...', width/2-330, height/2);
+   pop();
+}
 function play(){
    for(let i = bugs.length - 1; i >= 0; i--){
       bugs[i].update();
@@ -186,7 +232,9 @@ function play(){
    pop();
 
    if(countDown < 0){
+      song.stop();
       mode = 2;
+      endSong.start();
    }
 }
 
@@ -200,12 +248,11 @@ fill('white');
 rect(width/2, height/2, 700+sin(textS)*120, 100+sin(textS)*10);
 pop();
 
-   textAlign(CENTER, CENTER);
-   fill('black');
-   textSize(40+sin(textS)*10);
-   text('Click to Start!', width/2, height/2);
-   textS+=.05;
-
+textAlign(CENTER, CENTER);
+fill('black');
+textSize(40+sin(textS)*10);
+text('Click to Start!', width/2, height/2);
+textS+=.05;
    
 }
 
